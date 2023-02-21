@@ -100,6 +100,7 @@ class beam_analysis():
          ax = plt.subplot(111)
          ax.plot(ang_range,array_wng)
          plt.show()
+     def directivity_freq_response(self):   
         
 if __name__ == "__main__":
     ula = uniform_linear_arrays(8,0.08)
