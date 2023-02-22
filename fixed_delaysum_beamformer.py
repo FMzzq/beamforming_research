@@ -12,6 +12,7 @@ example
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 #create the microphone array
 class uniform_linear_arrays():
     '''
@@ -91,6 +92,7 @@ class beam_analysis():
          '''
          white noise gain is the suppress the white noise of microphone
          G = |wH * x|^2 / wH * Rxx * w  Rxx is the co-variance matrix the white noise 
+         accrodiing to the calculate we know the result just dur to the target-angle
          '''
          ang_range = np.arange(0, np.pi, np.pi/180)
          array_wng = np.zeros_like(ang_range, dtype=np.float64)
@@ -100,8 +102,30 @@ class beam_analysis():
          ax = plt.subplot(111)
          ax.plot(ang_range,array_wng)
          plt.show()
-     def directivity_freq_response(self):   
-        
+    def directivity_gain_plot(self):  
+         '''
+         when the noise is diffuse noise, namely the co-variance matrix is not equal to I
+         so accroding to the CSM  sinc(2*pi*f*t) t is the delay between mic so we can calulate 
+         the diffuse noise co-matrix
+         G = |wH * x|^2 / wH * Rxx * w  Rxx will be  sinc(2*pi*f*t)
+         anyway this G due to the target-angle and freqz so we will plot heat plot
+         '''
+         ang_range = np.arange(0, np.pi, np.pi/180)
+         frq_range = np.arange(0, 8000, 100)
+         array_divgain = np.zeros((ang_range.shape[0], frq_range.shape[0]), dtype=np.float64)
+         [m_mat, n_mat]  = np.meshgrid(np.arange(self.array.n_mic), np.arange(self.array.n_mic)) 
+    
+         for i in range(ang_range.shape[0]):
+             for j in range(frq_range.shape[0]):
+                 mat = 2 * frq_range[j] * (n_mat - m_mat) * (self.array.d_mic / self.array.c)
+                 Rxx = np.sinc(mat)
+                 w = self.beamformer.create_spatil_filter(ang_range[i],frq_range[j])
+                 gain = np.dot(np.dot(np.conj(w),Rxx),w.T)
+                 array_divgain[i,j] = 10 * np.log10(1./np.abs(gain.squeeze()) + 1e-10)
+         plot = sns.heatmap(array_divgain,cmap = 'gist_rainbow')
+         plt.gca().invert_yaxis() 
+         plt.show()
+           
 if __name__ == "__main__":
     ula = uniform_linear_arrays(8,0.08)
     delaysum_bf = delaysum(ula,np.pi/2,2000)
@@ -109,4 +133,5 @@ if __name__ == "__main__":
     beampatten = beam_analysis(ula,delaysum_bf,'DelaySum')
     beampatten.beampatten_plot()
     beampatten.white_noise_gain_plot()
+    beampatten.directivity_gain_plot()
 
