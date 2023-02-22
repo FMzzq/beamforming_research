@@ -12,7 +12,9 @@ c : the speed of voice
 Then the spatial filter w will be:
 
 steering_vec / n_mic
+
 here is the result of code 
+
 beampatten
 
 ![Figure 2023-02-22 144950](https://user-images.githubusercontent.com/30063425/220544510-1c4c4b3a-6685-4f5a-8ada-0dbbca159e4c.png)
