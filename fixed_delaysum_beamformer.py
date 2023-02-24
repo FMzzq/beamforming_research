@@ -98,10 +98,11 @@ class beam_analysis():
          array_wng = np.zeros_like(ang_range, dtype=np.float64)
          for i in range(ang_range.shape[0]):
              w = self.beamformer.create_spatil_filter(ang_range[i],self.beamformer.f)
-             array_wng[i] = 10 * np.log10(1./np.abs(np.dot(np.conj(w),w.T).squeeze()) + 1e-10)
+             array_wng[i] = 10 * np.log10(1./(np.abs(np.dot(np.conj(w),w.T).squeeze())+1e-10) + 1e-10)
          ax = plt.subplot(111)
          ax.plot(ang_range,array_wng)
          plt.show()
+         
     def directivity_gain_plot(self):  
          '''
          when the noise is diffuse noise, namely the co-variance matrix is not equal to I
@@ -121,14 +122,14 @@ class beam_analysis():
                  Rxx = np.sinc(mat)
                  w = self.beamformer.create_spatil_filter(ang_range[i],frq_range[j])
                  gain = np.dot(np.dot(np.conj(w),Rxx),w.T)
-                 array_divgain[i,j] = 10 * np.log10(1./np.abs(gain.squeeze()) + 1e-10)
+                 array_divgain[i,j] = 10 * np.log10(1./(np.abs(gain.squeeze())+1e-10) + 1e-10)
          plot = sns.heatmap(array_divgain,cmap = 'gist_rainbow')
          plt.gca().invert_yaxis() 
          plt.show()
            
 if __name__ == "__main__":
-    ula = uniform_linear_arrays(8,0.08)
-    delaysum_bf = delaysum(ula,np.pi/2,2000)
+    ula = uniform_linear_arrays(10,0.04)
+    delaysum_bf = delaysum(ula,3*np.pi/4,1500)
 
     beampatten = beam_analysis(ula,delaysum_bf,'DelaySum')
     beampatten.beampatten_plot()
